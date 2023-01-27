@@ -35,6 +35,7 @@ void StereoParamHandler::declareParams(rclcpp::Node* node, std::shared_ptr<dai::
     declareAndLogParam<int>(node, "i_low_bandwidth_quality", 50);
     stereo->setLeftRightCheck(declareAndLogParam<bool>(node, "i_lr_check", true));
     if(declareAndLogParam<bool>(node, "i_align_depth", true)) {
+        RCLCPP_WARN(node->get_logger(),"i_aligned_depth is set to true, Pipeline should not be Depth");
         declareAndLogParam<int>(node, "i_board_socket_id", static_cast<int>(dai::CameraBoardSocket::RGB));
         stereo->setDepthAlign(dai::CameraBoardSocket::RGB);
         declareAndLogParam<int>(node, "i_width", node->get_parameter("rgb.i_width").as_int());
