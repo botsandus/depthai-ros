@@ -72,6 +72,7 @@ ament_python_install_package(${PROJECT_NAME})
 install(
   PROGRAMS
   scripts/obj_pub.py
+  scripts/depth_image_ansys.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
