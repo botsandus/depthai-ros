@@ -6,6 +6,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
+import numpy as np
 
 
 class DepthImageAnsysNode(Node):
@@ -23,8 +24,21 @@ class DepthImageAnsysNode(Node):
     def listener_callback(self, msg):
         # self.get_logger().info("Getting Frame")
         current_frame = self.br.imgmsg_to_cv2(msg)
-        self.get_logger().info(str(current_frame.shape))
         # cv2.imshow("oak", current_frame)
+        self.get_logger().info(str(
+            current_frame[int(msg.height/2)][int(msg.width/2)]))
+        # norm = np.linalg.norm(current_frame)
+        # current_frame = 500*(current_frame/norm)
+        mean = np.mean((current_frame.flatten()))
+        # median = np.median(current_frame.flatten())
+        # max = np.max(current_frame.flatten())
+        np.clip(current_frame, 0, mean/2)
+        # self.get_logger().info(
+        #     str(max)+','
+        #     + str(median)+','
+        #     + str(mean)
+        #     )
+        cv2.imshow("oak", current_frame)
         cv2.waitKey(1)
 
 

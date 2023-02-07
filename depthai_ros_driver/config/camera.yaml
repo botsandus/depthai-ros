@@ -5,7 +5,7 @@
       i_enable_ir: true
       i_floodlight_brightness: 0
       i_ip: ''
-      i_laser_dot_brightness: 800
+      i_laser_dot_brightness: 500
       i_mx_id: ''
       i_nn_type: spatial
       i_pipeline_type: RGBD
@@ -102,7 +102,7 @@
       i_spatial_filter_delta: 20
       i_spatial_filter_hole_filling_radius: 2
       i_spatial_filter_iterations: 1
-      i_stereo_conf_threshold: 255
+      i_stereo_conf_threshold: 100
       i_temporal_filter_alpha: 0.4000000059604645
       i_temporal_filter_delta: 20
       i_temporal_filter_persistency: VALID_2_IN_LAST_4
