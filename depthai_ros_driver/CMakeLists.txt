@@ -73,6 +73,7 @@ install(
   PROGRAMS
   scripts/obj_pub.py
   scripts/depth_image_ansys.py
+  scripts/depth_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

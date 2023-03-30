@@ -20,6 +20,7 @@ class DepthImageAnsysNode(Node):
             10)
         self.subscription  # prevent unused variable warning
         self.br = CvBridge()
+        self.image = np.zeros((1280, 800, 3), np.uint8)
 
     def listener_callback(self, msg):
         # self.get_logger().info("Getting Frame")
@@ -29,16 +30,20 @@ class DepthImageAnsysNode(Node):
             current_frame[int(msg.height/2)][int(msg.width/2)]))
         # norm = np.linalg.norm(current_frame)
         # current_frame = 500*(current_frame/norm)
-        mean = np.mean((current_frame.flatten()))
+        # mean = np.mean((current_frame.flatten()))
         # median = np.median(current_frame.flatten())
         # max = np.max(current_frame.flatten())
-        np.clip(current_frame, 0, mean/2)
+        # np.clip(current_frame, 0, mean/2)
         # self.get_logger().info(
         #     str(max)+','
         #     + str(median)+','
         #     + str(mean)
         #     )
-        cv2.imshow("oak", current_frame)
+        current_frame = 0.5*current_frame
+        current_frame = np.clip(current_frame, 0, 255)
+        current_frame = np.uint8(current_frame)
+        cv2.imshow("oak", cv2.applyColorMap(
+            current_frame, cv2.COLORMAP_HOT))
         cv2.waitKey(1)
 
 

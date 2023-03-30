@@ -20,6 +20,8 @@ void Camera::onConfigure() {
     startSrv = this->create_service<Trigger>("~/start_camera", std::bind(&Camera::startCB, this, std::placeholders::_1, std::placeholders::_2));
     stopSrv = this->create_service<Trigger>("~/stop_camera", std::bind(&Camera::stopCB, this, std::placeholders::_1, std::placeholders::_2));
     RCLCPP_INFO(this->get_logger(), "Camera ready!");
+    std::ofstream file("/tmp/pipeline_ros.json");
+    file << pipeline->serializeToJson()["pipeline"];
 }
 
 void Camera::startCB(const Trigger::Request::SharedPtr /*req*/, Trigger::Response::SharedPtr res) {
