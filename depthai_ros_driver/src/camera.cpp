@@ -14,7 +14,7 @@ namespace depthai_ros_driver {
 Camera::Camera(const rclcpp::NodeOptions& options) : rclcpp::Node("camera", options) {
     ph = std::make_unique<param_handlers::CameraParamHandler>(this, "camera");
     ph->declareParams();
-    onConfigure();
+    start();
 }
 Camera::~Camera() = default;
 void Camera::onConfigure() {
@@ -71,12 +71,21 @@ void Camera::diagCB(const diagnostic_msgs::msg::DiagnosticArray::SharedPtr msg) 
 }
 
 void Camera::start() {
-    RCLCPP_INFO(this->get_logger(), "Starting camera.");
-    if(!camRunning) {
-        onConfigure();
-    } else {
-        RCLCPP_INFO(this->get_logger(), "Camera already running!.");
-    }
+    bool success = false;
+    do {
+        try {
+            RCLCPP_INFO(this->get_logger(), "Starting camera.");
+            if(!camRunning) {
+                onConfigure();
+            } else {
+                RCLCPP_INFO(this->get_logger(), "Camera already running!.");
+            }
+            success = true;
+        } catch (const std::exception &e) {
+            RCLCPP_ERROR(this->get_logger(), "Exception occurred: %s. Retry", e.what());
+            camRunning = false;
+        }
+    } while (!success);
 }
 
 void Camera::stop() {
