@@ -10,6 +10,7 @@
 #include "diagnostic_msgs/msg/diagnostic_array.hpp"
 #include "rclcpp/node.hpp"
 #include "std_srvs/srv/trigger.hpp"
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 namespace dai {
 class Pipeline;
@@ -69,6 +70,7 @@ class Camera : public rclcpp::Node {
     std::unique_ptr<param_handlers::CameraParamHandler> ph;
     rclcpp::Service<Trigger>::SharedPtr startSrv, stopSrv, savePipelineSrv, saveCalibSrv;
     rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagSub;
+    rclcpp::Publisher<geometry_msgs::msg::Transform>::SharedPtr housingtfPub;
     /*
      * Closes all the queues, clears the configured BaseNodes, stops the pipeline and resets the device.
      */
@@ -80,6 +82,7 @@ class Camera : public rclcpp::Node {
     void restart();
     void diagCB(const diagnostic_msgs::msg::DiagnosticArray::SharedPtr msg);
 
+    void loadHousingExtrinsics();
     void startCB(const Trigger::Request::SharedPtr /*req*/, Trigger::Response::SharedPtr res);
     void stopCB(const Trigger::Request::SharedPtr /*req*/, Trigger::Response::SharedPtr res);
     void saveCalibCB(const Trigger::Request::SharedPtr /*req*/, Trigger::Response::SharedPtr res);

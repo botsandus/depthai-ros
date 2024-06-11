@@ -54,6 +54,8 @@ void Camera::onConfigure() {
                                                         ph->getParam<std::string>("i_tf_custom_xacro_args"));
     }
     diagSub = this->create_subscription<diagnostic_msgs::msg::DiagnosticArray>("/diagnostics", 10, std::bind(&Camera::diagCB, this, std::placeholders::_1));
+    housingtfPub = this->create_publisher<geometry_msgs::msg::Transform>("~/housing_extrinsics", rclcpp::QoS(1).transient_local());
+    loadHousingExtrinsics();
     RCLCPP_INFO(this->get_logger(), "Camera ready!");
 }
 
@@ -111,6 +113,31 @@ void Camera::restart() {
         return;
     } else {
         RCLCPP_ERROR(this->get_logger(), "Restarting camera failed.");
+    }
+}
+
+void Camera::loadHousingExtrinsics() {
+    auto calibHandler = device->readCalibration();
+    auto json = calibHandler.eepromToJson();
+
+    if(device->getDeviceName() == "DEX") {
+        RCLCPP_INFO(this->get_logger(), "Device has Dexory overwritten housing extrinsincs");
+
+        // convert this to tf2::Transform
+        tf2::Transform housingExtrinsics;
+        auto rot = json["housingExtrinsics"]["rotationMatrix"];
+        tf2::Matrix3x3 rotationMatrix;
+        rotationMatrix.setValue(rot[0][0], rot[0][1], rot[0][2],
+                                rot[1][0], rot[1][1], rot[1][2],
+                                rot[2][0], rot[2][1], rot[2][2]);
+        tf2::Vector3 translationVector(json["housingExtrinsics"]["translation"]["x"],
+                                    json["housingExtrinsics"]["translation"]["y"],
+                                    json["housingExtrinsics"]["translation"]["z"]);
+        housingExtrinsics.setBasis(rotationMatrix);
+        housingExtrinsics.setOrigin(translationVector);
+        geometry_msgs::msg::Transform housingExtrinsicsMsg;
+        tf2::toMsg(housingExtrinsics, housingExtrinsicsMsg);
+        housingtfPub->publish(housingExtrinsicsMsg);
     }
 }
 
