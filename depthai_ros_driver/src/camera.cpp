@@ -139,6 +139,12 @@ void Camera::loadHousingExtrinsics() {
         tf2::toMsg(housingExtrinsics, housingExtrinsicsMsg);
         housingtfPub->publish(housingExtrinsicsMsg);
     }
+    else {
+        // publish identity transform
+        geometry_msgs::msg::Transform identityTfMsg;
+        identityTfMsg.rotation.w = 1;
+        housingtfPub->publish(identityTfMsg);
+    }
 }
 
 void Camera::saveCalib() {
