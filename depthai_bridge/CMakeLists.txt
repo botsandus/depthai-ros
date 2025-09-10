@@ -83,7 +83,7 @@ file(GLOB LIB_SRC
 
 add_library(${PROJECT_NAME} SHARED ${LIB_SRC})
 
-ament_target_dependencies(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME}
   ${dependencies})
 target_compile_definitions(${PROJECT_NAME} PUBLIC IS_ROS2)
 message(STATUS "--------------------------$ENV{ROS_DISTRO} ---")

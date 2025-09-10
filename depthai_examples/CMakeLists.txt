@@ -88,7 +88,7 @@ macro(dai_add_node_ros2 node_name node_src)
                         opencv_imgproc
                         opencv_highgui)
 
-  ament_target_dependencies("${node_name}"
+  target_link_libraries("${node_name}"
                             ${dependencies})
 
 endmacro()
