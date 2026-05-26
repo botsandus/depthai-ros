@@ -25,6 +25,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/HandLandmark.msg"
   "msg/HandLandmarkArray.msg"
   "msg/ImuWithMagneticField.msg"
+  "msg/Pose2D.msg"
   "msg/TrackedFeature.msg"
   "msg/TrackedFeatures.msg"
   # "msg/ImageMarker.msg"
