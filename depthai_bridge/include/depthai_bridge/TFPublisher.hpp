@@ -6,7 +6,7 @@
 #include "nlohmann/json.hpp"
 #include "rclcpp/logger.hpp"
 #include "rclcpp/parameter_client.hpp"
-#include "tf2_ros/static_transform_broadcaster.h"
+#include "tf2_ros/static_transform_broadcaster.hpp"
 
 namespace rclcpp {
 class Node;
