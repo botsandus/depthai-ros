@@ -59,6 +59,21 @@ pluginlib
 )
 
 
+function(link_ament_deps target)
+  set(_targets)
+  foreach(dep IN LISTS ARGN)
+    if("${dep}" STREQUAL "depthai")
+      list(APPEND _targets depthai::core)
+    elseif(DEFINED ${dep}_TARGETS)
+      list(APPEND _targets ${${dep}_TARGETS})
+    endif()
+  endforeach()
+  if(_targets)
+    target_link_libraries(${target} ${_targets})
+  endif()
+endfunction()
+
+
 include_directories(include)
 
 set(COMMON_LIB_NAME ${PROJECT_NAME}_common)
@@ -80,7 +95,7 @@ add_library(
   src/param_handlers/sync_param_handler.cpp
 )
 
-ament_target_dependencies(${COMMON_LIB_NAME} ${COMMON_DEPS})
+link_ament_deps(${COMMON_LIB_NAME} ${COMMON_DEPS})
 
 set(SENSOR_LIB_NAME ${PROJECT_NAME}_sensor_nodes)
 add_library(
@@ -95,7 +110,7 @@ add_library(
   src/dai_nodes/sensors/sync.cpp
 )
 
-ament_target_dependencies(${SENSOR_LIB_NAME} ${SENSOR_DEPS})
+link_ament_deps(${SENSOR_LIB_NAME} ${SENSOR_DEPS})
 target_link_libraries(
   ${SENSOR_LIB_NAME}
   ${COMMON_LIB_NAME}
@@ -107,7 +122,7 @@ add_library(
   src/dai_nodes/nn/spatial_nn_wrapper.cpp
   src/dai_nodes/nn/segmentation.cpp
 )
-ament_target_dependencies(${NN_LIB_NAME} ${NN_DEPS})
+link_ament_deps(${NN_LIB_NAME} ${NN_DEPS})
 target_link_libraries(
   ${NN_LIB_NAME}
   ${COMMON_LIB_NAME}
@@ -120,7 +135,7 @@ add_library(
   src/pipeline/base_types.cpp
 )
 
-ament_target_dependencies(${PROJECT_NAME} ${CAM_DEPS})
+link_ament_deps(${PROJECT_NAME} ${CAM_DEPS})
 target_link_libraries(
   ${PROJECT_NAME}
   ${SENSOR_LIB_NAME}
@@ -130,7 +145,7 @@ target_link_libraries(
 add_executable(
 	camera_node
 	src/camera_node.cpp)
-ament_target_dependencies(camera_node ${CAM_DEPS} ${COMMON_DEPS} ${SENSOR_DEPS} ${NN_DEPS})
+link_ament_deps(camera_node ${CAM_DEPS} ${COMMON_DEPS} ${SENSOR_DEPS} ${NN_DEPS})
 target_link_libraries(camera_node ${PROJECT_NAME} ${SENSOR_LIB_NAME} ${NN_LIB_NAME} ${COMMON_LIB_NAME})
 rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::Camera")
 pluginlib_export_plugin_description_file(${PROJECT_NAME} plugins.xml)
