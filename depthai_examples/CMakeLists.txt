@@ -83,13 +83,18 @@ include_directories(
 macro(dai_add_node_ros2 node_name node_src)
   add_executable("${node_name}" "${node_src}")
 
+  set(_dai_dep_targets)
+  foreach(dep IN LISTS dependencies)
+    if(DEFINED ${dep}_TARGETS)
+      list(APPEND _dai_dep_targets ${${dep}_TARGETS})
+    endif()
+  endforeach()
+
   target_link_libraries("${node_name}"
                         depthai::core
                         opencv_imgproc
-                        opencv_highgui)
-
-  ament_target_dependencies("${node_name}"
-                            ${dependencies})
+                        opencv_highgui
+                        ${_dai_dep_targets})
 
 endmacro()
 
