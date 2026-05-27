@@ -23,7 +23,6 @@ ament_auto_add_library(
   src/features_3d.cpp
   src/utils.cpp
 )
-ament_target_dependencies(${PROJECT_NAME} ${DEPENDENCIES})
 target_link_libraries(
   ${PROJECT_NAME}
   ${OpenCV_LIBRARIES}
