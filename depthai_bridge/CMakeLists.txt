@@ -28,6 +28,7 @@ message(STATUS "------------------------------------------")
 
 set(BUILD_TOOL_INCLUDE_DIRS ${ament_INCLUDE_DIRS})
 
+find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(camera_info_manager REQUIRED)
 find_package(cv_bridge REQUIRED)
@@ -83,8 +84,23 @@ file(GLOB LIB_SRC
 
 add_library(${PROJECT_NAME} SHARED ${LIB_SRC})
 
-ament_target_dependencies(${PROJECT_NAME}
-  ${dependencies})
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  ament_index_cpp::ament_index_cpp
+  camera_info_manager::camera_info_manager
+  cv_bridge::cv_bridge
+  image_transport::image_transport
+  rclcpp::rclcpp
+  tf2::tf2
+  tf2_ros::tf2_ros
+  tf2_geometry_msgs::tf2_geometry_msgs
+  ${depthai_ros_msgs_TARGETS}
+  ${sensor_msgs_TARGETS}
+  ${stereo_msgs_TARGETS}
+  ${std_msgs_TARGETS}
+  ${vision_msgs_TARGETS}
+  ${composition_interfaces_TARGETS}
+  ${ffmpeg_image_transport_msgs_TARGETS}
+)
 target_compile_definitions(${PROJECT_NAME} PUBLIC IS_ROS2)
 message(STATUS "--------------------------$ENV{ROS_DISTRO} ---")
 message(STATUS $ENV{ROS_DISTRO})
@@ -97,7 +113,7 @@ if($ENV{ROS_DISTRO} STREQUAL "humble")
   target_compile_definitions(${PROJECT_NAME} PRIVATE IS_HUMBLE)
 endif()
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} PUBLIC
                       depthai::core
                       opencv_imgproc
                       opencv_highgui
