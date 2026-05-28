@@ -107,36 +107,20 @@ foreach(_dep IN LISTS dependencies)
   endif()
 endforeach()
 
-# Explicitly add tf2 includes using target properties
-# tf2 may not properly propagate include dirs via targets in Lyrical
+# Explicitly add tf2 includes - tf2 may not properly export targets in Lyrical
+# Try multiple approaches to ensure includes are found
 if(TARGET tf2::tf2)
-  message(STATUS "Found tf2::tf2 target, using it directly")
   target_link_libraries(${PROJECT_NAME} PUBLIC tf2::tf2)
-  # Also get and add any interface include directories
-  get_target_property(_tf2_include_dirs tf2::tf2 INTERFACE_INCLUDE_DIRECTORIES)
-  if(_tf2_include_dirs)
-    message(STATUS "tf2::tf2 INTERFACE_INCLUDE_DIRECTORIES: ${_tf2_include_dirs}")
-    target_include_directories(${PROJECT_NAME} PUBLIC ${_tf2_include_dirs})
-  endif()
 elseif(TARGET tf2)
-  message(STATUS "Found tf2 target (un-namespaced)")
   target_link_libraries(${PROJECT_NAME} PUBLIC tf2)
-  get_target_property(_tf2_include_dirs tf2 INTERFACE_INCLUDE_DIRECTORIES)
-  if(_tf2_include_dirs)
-    message(STATUS "tf2 INTERFACE_INCLUDE_DIRECTORIES: ${_tf2_include_dirs}")
-    target_include_directories(${PROJECT_NAME} PUBLIC ${_tf2_include_dirs})
-  endif()
-else()
-  message(STATUS "No tf2 target found, trying package variables")
-  if(DEFINED tf2_INCLUDE_DIRS)
-    message(STATUS "Using tf2_INCLUDE_DIRS: ${tf2_INCLUDE_DIRS}")
-    target_include_directories(${PROJECT_NAME} PUBLIC ${tf2_INCLUDE_DIRS})
-  endif()
-  if(DEFINED tf2_LIBRARIES)
-    message(STATUS "Using tf2_LIBRARIES: ${tf2_LIBRARIES}")
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${tf2_LIBRARIES})
-  endif()
 endif()
+
+# Add tf2 include paths directly - they should exist in ROS 2 install
+# This is a workaround for incomplete CMake config in Lyrical
+target_include_directories(${PROJECT_NAME} PUBLIC
+  ${tf2_INCLUDE_DIRS}
+  /opt/ros/$ENV{ROS_DISTRO}/include
+)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC IS_ROS2)
 message(STATUS "--------------------------$ENV{ROS_DISTRO} ---")
