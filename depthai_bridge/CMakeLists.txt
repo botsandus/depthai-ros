@@ -118,11 +118,11 @@ if($ENV{ROS_DISTRO} STREQUAL "humble")
   target_compile_definitions(${PROJECT_NAME} PRIVATE IS_HUMBLE)
 endif()
 
-target_link_libraries(${PROJECT_NAME}
-                      depthai::core
-                      opencv_imgproc
-                      opencv_highgui
-                      opencv_calib3d)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    depthai::core
+    opencv_imgproc
+    opencv_highgui
+    opencv_calib3d)
 
 ament_export_targets(depthai_bridgeTargets HAS_LIBRARY_TARGET)
 
