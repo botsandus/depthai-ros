@@ -29,7 +29,6 @@ message(STATUS "------------------------------------------")
 set(BUILD_TOOL_INCLUDE_DIRS ${ament_INCLUDE_DIRS})
 
 find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_target_dependencies REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(camera_info_manager REQUIRED)
 find_package(cv_bridge REQUIRED)
@@ -85,8 +84,28 @@ file(GLOB LIB_SRC
 
 add_library(${PROJECT_NAME} SHARED ${LIB_SRC})
 
-ament_target_dependencies(${PROJECT_NAME}
-  ${dependencies})
+# ament_target_dependencies was removed in ROS 2 Lyrical / ament_cmake >= 4.x.
+# Use target_link_libraries with the modern per-package target conventions:
+#   - message/interface packages export ${pkg}_TARGETS
+#   - regular ament packages export pkg::pkg targets
+foreach(_dep IN LISTS dependencies)
+  if(${_dep}_TARGETS)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${${_dep}_TARGETS})
+  endif()
+  if(TARGET ${_dep}::${_dep})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${_dep}::${_dep})
+  endif()
+  # Legacy fallback (old ament_cmake / non-ament packages)
+  if(NOT ${_dep}_TARGETS AND NOT TARGET ${_dep}::${_dep})
+    if(DEFINED ${_dep}_INCLUDE_DIRS)
+      target_include_directories(${PROJECT_NAME} PUBLIC ${${_dep}_INCLUDE_DIRS})
+    endif()
+    if(DEFINED ${_dep}_LIBRARIES)
+      target_link_libraries(${PROJECT_NAME} PUBLIC ${${_dep}_LIBRARIES})
+    endif()
+  endif()
+endforeach()
+
 target_compile_definitions(${PROJECT_NAME} PUBLIC IS_ROS2)
 message(STATUS "--------------------------$ENV{ROS_DISTRO} ---")
 message(STATUS $ENV{ROS_DISTRO})
