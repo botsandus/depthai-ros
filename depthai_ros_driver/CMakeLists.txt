@@ -80,7 +80,23 @@ add_library(
   src/param_handlers/sync_param_handler.cpp
 )
 
-ament_target_dependencies(${COMMON_LIB_NAME} ${COMMON_DEPS})
+# ament_target_dependencies was removed in ROS 2 Lyrical / ament_cmake >= 4.x
+foreach(_dep IN LISTS COMMON_DEPS)
+  if(${_dep}_TARGETS)
+    target_link_libraries(${COMMON_LIB_NAME} PUBLIC ${${_dep}_TARGETS})
+  elseif(TARGET ${_dep}::${_dep})
+    target_link_libraries(${COMMON_LIB_NAME} PUBLIC ${_dep}::${_dep})
+  elseif(TARGET ${_dep})
+    target_link_libraries(${COMMON_LIB_NAME} PUBLIC ${_dep})
+  else()
+    if(DEFINED ${_dep}_INCLUDE_DIRS)
+      target_include_directories(${COMMON_LIB_NAME} PUBLIC ${${_dep}_INCLUDE_DIRS})
+    endif()
+    if(DEFINED ${_dep}_LIBRARIES)
+      target_link_libraries(${COMMON_LIB_NAME} PUBLIC ${${_dep}_LIBRARIES})
+    endif()
+  endif()
+endforeach()
 
 set(SENSOR_LIB_NAME ${PROJECT_NAME}_sensor_nodes)
 add_library(
@@ -95,7 +111,22 @@ add_library(
   src/dai_nodes/sensors/sync.cpp
 )
 
-ament_target_dependencies(${SENSOR_LIB_NAME} ${SENSOR_DEPS})
+foreach(_dep IN LISTS SENSOR_DEPS)
+  if(${_dep}_TARGETS)
+    target_link_libraries(${SENSOR_LIB_NAME} PUBLIC ${${_dep}_TARGETS})
+  elseif(TARGET ${_dep}::${_dep})
+    target_link_libraries(${SENSOR_LIB_NAME} PUBLIC ${_dep}::${_dep})
+  elseif(TARGET ${_dep})
+    target_link_libraries(${SENSOR_LIB_NAME} PUBLIC ${_dep})
+  else()
+    if(DEFINED ${_dep}_INCLUDE_DIRS)
+      target_include_directories(${SENSOR_LIB_NAME} PUBLIC ${${_dep}_INCLUDE_DIRS})
+    endif()
+    if(DEFINED ${_dep}_LIBRARIES)
+      target_link_libraries(${SENSOR_LIB_NAME} PUBLIC ${${_dep}_LIBRARIES})
+    endif()
+  endif()
+endforeach()
 target_link_libraries(
   ${SENSOR_LIB_NAME}
   ${COMMON_LIB_NAME}
@@ -107,7 +138,22 @@ add_library(
   src/dai_nodes/nn/spatial_nn_wrapper.cpp
   src/dai_nodes/nn/segmentation.cpp
 )
-ament_target_dependencies(${NN_LIB_NAME} ${NN_DEPS})
+foreach(_dep IN LISTS NN_DEPS)
+  if(${_dep}_TARGETS)
+    target_link_libraries(${NN_LIB_NAME} PUBLIC ${${_dep}_TARGETS})
+  elseif(TARGET ${_dep}::${_dep})
+    target_link_libraries(${NN_LIB_NAME} PUBLIC ${_dep}::${_dep})
+  elseif(TARGET ${_dep})
+    target_link_libraries(${NN_LIB_NAME} PUBLIC ${_dep})
+  else()
+    if(DEFINED ${_dep}_INCLUDE_DIRS)
+      target_include_directories(${NN_LIB_NAME} PUBLIC ${${_dep}_INCLUDE_DIRS})
+    endif()
+    if(DEFINED ${_dep}_LIBRARIES)
+      target_link_libraries(${NN_LIB_NAME} PUBLIC ${${_dep}_LIBRARIES})
+    endif()
+  endif()
+endforeach()
 target_link_libraries(
   ${NN_LIB_NAME}
   ${COMMON_LIB_NAME}
@@ -120,7 +166,22 @@ add_library(
   src/pipeline/base_types.cpp
 )
 
-ament_target_dependencies(${PROJECT_NAME} ${CAM_DEPS})
+foreach(_dep IN LISTS CAM_DEPS)
+  if(${_dep}_TARGETS)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${${_dep}_TARGETS})
+  elseif(TARGET ${_dep}::${_dep})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${_dep}::${_dep})
+  elseif(TARGET ${_dep})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${_dep})
+  else()
+    if(DEFINED ${_dep}_INCLUDE_DIRS)
+      target_include_directories(${PROJECT_NAME} PUBLIC ${${_dep}_INCLUDE_DIRS})
+    endif()
+    if(DEFINED ${_dep}_LIBRARIES)
+      target_link_libraries(${PROJECT_NAME} PUBLIC ${${_dep}_LIBRARIES})
+    endif()
+  endif()
+endforeach()
 target_link_libraries(
   ${PROJECT_NAME}
   ${SENSOR_LIB_NAME}
@@ -130,7 +191,22 @@ target_link_libraries(
 add_executable(
 	camera_node
 	src/camera_node.cpp)
-ament_target_dependencies(camera_node ${CAM_DEPS} ${COMMON_DEPS} ${SENSOR_DEPS} ${NN_DEPS})
+foreach(_dep IN LISTS CAM_DEPS COMMON_DEPS SENSOR_DEPS NN_DEPS)
+  if(${_dep}_TARGETS)
+    target_link_libraries(camera_node PUBLIC ${${_dep}_TARGETS})
+  elseif(TARGET ${_dep}::${_dep})
+    target_link_libraries(camera_node PUBLIC ${_dep}::${_dep})
+  elseif(TARGET ${_dep})
+    target_link_libraries(camera_node PUBLIC ${_dep})
+  else()
+    if(DEFINED ${_dep}_INCLUDE_DIRS)
+      target_include_directories(camera_node PUBLIC ${${_dep}_INCLUDE_DIRS})
+    endif()
+    if(DEFINED ${_dep}_LIBRARIES)
+      target_link_libraries(camera_node PUBLIC ${${_dep}_LIBRARIES})
+    endif()
+  endif()
+endforeach()
 target_link_libraries(camera_node ${PROJECT_NAME} ${SENSOR_LIB_NAME} ${NN_LIB_NAME} ${COMMON_LIB_NAME})
 rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::Camera")
 pluginlib_export_plugin_description_file(${PROJECT_NAME} plugins.xml)
