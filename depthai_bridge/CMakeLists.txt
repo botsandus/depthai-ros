@@ -120,6 +120,7 @@ endif()
 target_include_directories(${PROJECT_NAME} PUBLIC
   ${tf2_INCLUDE_DIRS}
   /opt/ros/$ENV{ROS_DISTRO}/include
+  /opt/ros/$ENV{ROS_DISTRO}/include/tf2
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC IS_ROS2)

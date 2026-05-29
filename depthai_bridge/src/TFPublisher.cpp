@@ -14,8 +14,14 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
+// ROS 2 distros differ: older tf2 ships .h, newer ships .hpp.
+#if __has_include("tf2/LinearMath/Matrix3x3.hpp")
+#include "tf2/LinearMath/Matrix3x3.hpp"
+#include "tf2/LinearMath/Quaternion.hpp"
+#else
 #include "tf2/LinearMath/Matrix3x3.h"
 #include "tf2/LinearMath/Quaternion.h"
+#endif
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 namespace dai {
