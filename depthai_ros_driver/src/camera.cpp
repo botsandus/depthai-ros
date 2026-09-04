@@ -1,5 +1,6 @@
 #include "depthai_ros_driver/camera.hpp"
 
+#include <chrono>
 #include <fstream>
 
 #include "depthai/device/Device.hpp"
@@ -7,6 +8,7 @@
 #include "depthai_bridge/TFPublisher.hpp"
 #include "depthai_ros_driver/pipeline/pipeline_generator.hpp"
 #include "diagnostic_msgs/msg/diagnostic_array.hpp"
+#include "rclcpp/utilities.hpp"
 
 namespace depthai_ros_driver {
 
@@ -76,11 +78,34 @@ void Camera::diagCB(const diagnostic_msgs::msg::DiagnosticArray::SharedPtr msg) 
 }
 
 void Camera::start() {
-    RCLCPP_INFO(this->get_logger(), "Starting camera.");
-    if(!camRunning) {
-        onConfigure();
-    } else {
-        RCLCPP_INFO(this->get_logger(), "Camera already running!.");
+    // warning: this retry loop must persist, without it any exception thrown while (re)starting
+    // the camera escapes the executor and aborts the whole component container (exit code -6), so it never reconnects.
+    while(rclcpp::ok()) {
+        try {
+            RCLCPP_INFO(this->get_logger(), "Starting camera.");
+            if(!camRunning) {
+                onConfigure();
+            } else {
+                RCLCPP_INFO(this->get_logger(), "Camera already running!.");
+            }
+            return;
+        } catch(const std::exception& e) {
+            RCLCPP_ERROR(this->get_logger(), "Exception while starting camera: %s. Retrying in 1s.", e.what());
+            // close the device first so no queue callbacks can fire while the half-built nodes are destroyed, and dont close the
+            // node queues here because at this point we dont know if they have been set up yet.
+            if(device) {
+                try {
+                    device->close();
+                } catch(const std::exception& closeErr) {
+                    RCLCPP_WARN(this->get_logger(), "Exception while closing device: %s", closeErr.what());
+                }
+            }
+            daiNodes.clear();
+            device.reset();
+            pipeline.reset();
+            camRunning = false;
+            rclcpp::sleep_for(std::chrono::seconds(1));
+        }
     }
 }
 
